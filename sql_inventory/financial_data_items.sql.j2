@@ -1,0 +1,29 @@
+SELECT
+    fp.COMPANYID,
+    fp.fiscalYear,
+    fp.fiscalQuarter,
+    fp.PERIODTYPEID,
+    fi.FILINGDATE,
+    fi.RESTATEMENTTYPEID,
+    fi.periodEndDate,
+    fc.CURRENCYID,
+    fcd.DATAITEMVALUE,
+    fcd.UNITTYPEID
+FROM CIQFINPERIOD fp
+JOIN CIQFININSTANCE fi
+    ON fi.FINANCIALPERIODID = fp.FINANCIALPERIODID
+JOIN CIQFININSTANCETOCOLLECTION fic
+    ON fic.FINANCIALINSTANCEID = fi.FINANCIALINSTANCEID
+JOIN CIQFINCOLLECTION fc
+    ON fc.FINANCIALCOLLECTIONID = fic.FINANCIALCOLLECTIONID
+JOIN CIQFINCOLLECTIONDATA fcd
+    ON fcd.FINANCIALCOLLECTIONID = fc.FINANCIALCOLLECTIONID
+WHERE
+    fp.COMPANYID IN ({{ company_ids | join(', ') }})
+    AND fcd.DATAITEMID = {{ data_item_id }}
+{% if date_from %}
+    AND fi.PERIODENDDATE >= '{{ date_from }}'
+{% endif %}
+{% if date_to %}
+    AND fi.PERIODENDDATE <= '{{ date_to }}'
+{% endif %}

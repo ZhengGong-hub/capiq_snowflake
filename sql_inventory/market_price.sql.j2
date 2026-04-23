@@ -1,0 +1,35 @@
+SELECT
+    c.companyid,
+    ti.tradingItemId,
+    ti.currencyid,
+    mi.priceDate,
+    mi.priceClose,
+    mi.priceOpen,
+    mi.priceHigh,
+    mi.priceLow,
+    mi.volume,
+    mi.vwap,
+    mi.priceClose * COALESCE(daf.divAdjFactor, 1) divAdjClose,
+    COALESCE(daf.divAdjFactor, 1) divAdjFactor
+FROM ciqCompany c
+JOIN ciqSecurity s
+    ON s.companyid = c.companyid
+JOIN ciqTradingItem ti
+    ON ti.securityId = s.securityId
+JOIN miadjprice mi
+    ON mi.tradingItemId = ti.tradingItemId
+LEFT JOIN ciqPriceEquityDivAdjFactor daf
+    ON  daf.tradingItemId = mi.tradingItemId
+    AND daf.fromDate <= mi.priceDate
+    AND (daf.toDate IS NULL OR daf.toDate >= mi.priceDate)
+WHERE
+    c.companyId IN ({{ company_ids | join(', ') }})
+    AND s.primaryflag = 1
+    AND ti.primaryflag = 1
+{% if date_from %}
+    AND mi.priceDate >= '{{ date_from }}'
+{% endif %}
+{% if date_to %}
+    AND mi.priceDate <= '{{ date_to }}'
+{% endif %}
+ORDER BY mi.priceDate ASC
