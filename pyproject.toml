@@ -1,0 +1,39 @@
+[project]
+name = "capiq_snowflake"
+version = "0.1.0"
+description = "snowflake sample query"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "TODO: Your Name", email = "you@example.com" }]
+keywords = ["data-science", "analysis", "reporting", "cli", "skeleton"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+  "pandas==3.0.1",
+  "openpyxl>=3.1.0",
+  "matplotlib",
+  "polars",
+  "requests",
+  "python-dotenv==1.2.2"
+]
+
+[project.scripts]
+ds-project = "ds_project.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v"
+
