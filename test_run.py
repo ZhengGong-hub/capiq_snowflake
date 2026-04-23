@@ -32,6 +32,7 @@ def run(query_name: str) -> None:
     res = client.fetch(sql)
     df = client.res_json_to_pandas(res)
     print(df)
+    df.to_csv(f"{query_name}_output.csv", index=False)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

@@ -1,0 +1,11 @@
+SELECT
+    table_schema,
+    table_name,
+    table_type,
+    row_count,
+    bytes
+FROM information_schema.tables
+{% if table_schema %}
+WHERE table_schema = '{{ table_schema }}'
+{% endif %}
+ORDER BY table_schema, table_name
