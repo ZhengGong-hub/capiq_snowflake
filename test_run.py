@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+
+import yaml
 from jinja2 import Environment, FileSystemLoader
 from dotenv import dotenv_values
 
@@ -5,40 +9,33 @@ from db_client import SnowflakeApiClient, SnowflakeApiClientConfig
 
 config = dotenv_values(".env")
 
-WAREHOUSE = config['SP_SF_WAREHOUSE']
-DATABASE = "MI_XPRESSCLOUD"
-SCHEMA = "XPRESSFEED"
-ROLE = config['SP_SF_ROLE']
-TOKEN = config['SP_SF_TOKEN']
-
 client = SnowflakeApiClient(
     SnowflakeApiClientConfig(
         account_url=config['SP_SF_ACCT_URL'],
-        token=TOKEN,
-        warehouse=WAREHOUSE,
-        database=DATABASE,
-        schema=SCHEMA,
-        role=ROLE,
+        token=config['SP_SF_TOKEN'],
+        warehouse=config['SP_SF_WAREHOUSE'],
+        database="MI_XPRESSCLOUD",
+        schema="XPRESSFEED",
+        role=config['SP_SF_ROLE'],
     )
 )
 
-env = Environment(loader=FileSystemLoader("sql_inventory"))
-# sql = env.get_template("financial_data_items.sql.j2").render(
-#     company_ids=[24937, 874652],
-#     data_item_id=8,
-#     date_from="2024-01-01",
-#     date_to="2025-12-31",
-# )
-sql = env.get_template("market_price.sql.j2").render(
-    company_ids=[24937, 874652],
-    date_from="2024-01-01",
-    date_to="2025-12-31",
-)
+def run(query_name: str) -> None:
+    query_dir = Path("sql_inventory") / query_name
+    params = yaml.safe_load((query_dir / "params.yaml").read_text())
+    env = Environment(loader=FileSystemLoader(str(query_dir)))
+    sql = env.get_template("query.sql.j2").render(**params)
 
-if not client.ping():
-    raise RuntimeError("Snowflake connection check failed")
+    if not client.ping():
+        raise RuntimeError("Snowflake connection check failed")
 
-res = client.fetch(sql)
+    res = client.fetch(sql)
+    df = client.res_json_to_pandas(res)
+    print(df)
 
-df = client.res_json_to_pandas(res)
-print(df)
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(f"Usage: python test_run.py <query_name>")
+        print(f"Available: {[p.name for p in Path('sql_inventory').iterdir() if p.is_dir()]}")
+        sys.exit(1)
+    run(sys.argv[1])
