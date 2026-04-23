@@ -1,0 +1,28 @@
+SELECT
+    EP.periodTypeId,
+    EP.periodenddate,
+    EP.fiscalyear,
+    EP.fiscalquarter,
+    ED.dataitemid,
+    ED.currencyId,
+    ED.dataItemValue,
+    ED.effectiveDate,
+    ED.toDate,
+    ED.estimatescaleid,
+    di.dataitemname
+FROM ciqEstimatePeriod EP
+JOIN ciqEstimateConsensus EC
+    ON EC.estimatePeriodId = EP.estimatePeriodId
+JOIN ciqEstimateNumericData ED
+    ON ED.estimateConsensusId = EC.estimateConsensusId
+JOIN ciqdataitem di
+    ON di.dataitemid = ED.dataitemid
+WHERE
+    EP.companyId IN ({{ company_ids | join(', ') }})
+    AND EP.periodTypeId = 2
+    AND ED.dataItemId IN ({{ data_item_ids | join(', ') }})
+{% if date_from %}
+    AND EP.periodenddate > '{{ date_from }}'
+{% endif %}
+    AND ED.toDate > '{{ estimates_cutoff_date }}'
+ORDER BY EP.fiscalquarter
