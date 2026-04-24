@@ -23,6 +23,8 @@ client = SnowflakeApiClient(
 def run(query_name: str) -> None:
     query_dir = Path("sql_inventory") / query_name
     params = yaml.safe_load((query_dir / "params.yaml").read_text())
+    if params is None:
+        params = {}
     env = Environment(loader=FileSystemLoader(str(query_dir)))
     sql = env.get_template("query.sql.j2").render(**params)
 

@@ -1,0 +1,9 @@
+SELECT *
+FROM ciqdataitem
+{% if fuzzy_name %}
+WHERE UPPER(dataitemname) LIKE UPPER('%{{ fuzzy_name }}%')
+{% endif %}
+{% if dataitemid %}
+WHERE dataitemid IN ({{ dataitemid | join(', ') }})
+{% endif %}
+ORDER BY dataitemid ASC

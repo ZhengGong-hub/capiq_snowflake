@@ -209,3 +209,4 @@ __marimo__/
 
 # Zheng's own
 *.csv
+*.parquet

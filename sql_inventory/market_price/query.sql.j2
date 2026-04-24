@@ -10,7 +10,11 @@ SELECT
     mi.volume,
     mi.vwap,
     mi.priceClose * COALESCE(daf.divAdjFactor, 1) divAdjClose,
-    COALESCE(daf.divAdjFactor, 1) divAdjFactor
+    COALESCE(daf.divAdjFactor, 1) divAdjFactor,
+    mi.priceClose * COALESCE(daf.divAdjFactor, 1)
+    / LAG(mi.priceClose * COALESCE(daf.divAdjFactor, 1)) OVER (
+        PARTITION BY ti.tradingItemId ORDER BY mi.priceDate
+    ) - 1 totalReturn
 FROM ciqCompany c
 JOIN ciqSecurity s
     ON s.companyid = c.companyid
