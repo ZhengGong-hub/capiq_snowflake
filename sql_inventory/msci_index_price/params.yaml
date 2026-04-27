@@ -1,0 +1,7 @@
+index_id: 379978898      # MSCI World index
+currency_id: 160         # USD
+isocode: "USD"      # USD # feed in isocode is also ok
+return_type: 4           # total return net 
+data_item_id: 112099     # index price 
+date_from: "2025-01-01"
+date_to:

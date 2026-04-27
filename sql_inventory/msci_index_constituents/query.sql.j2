@@ -1,0 +1,17 @@
+select 
+const.*,
+idx.INDEXNAME,
+MSCIconstituent.TRADINGITEMID,
+MSCIconstituent.SECURITYID,
+sec.companyid
+from MSCIindexconstituent const
+JOIN
+    MSCIconstituent 
+    on const.constituentid = MSCIconstituent.constituentid
+JOIN
+    CiqSecurity sec
+    on sec.securityid = MSCIconstituent.securityid
+JOIN 
+    MSCIindex idx
+    on idx.indexid = const.indexid
+WHERE const.indexid = {{ index_id | default(379978898, true) }}

@@ -24,5 +24,5 @@ WHERE
 {% if date_from %}
     AND EP.periodenddate > '{{ date_from }}'
 {% endif %}
-    AND ED.toDate > '{{ estimates_cutoff_date }}'
+    AND ED.toDate > '{{ estimates_cutoff_date | default("2030-01-01", true) }}'
 ORDER BY EP.fiscalquarter
